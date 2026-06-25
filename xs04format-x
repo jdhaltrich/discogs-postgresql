@@ -1,0 +1,68 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GNU General Public License v2.0 only
+# Copyright (c) 2026 Juan Diluca
+# See the LICENSE file in the repository root for details.
+
+psql \
+	-U postgres \
+	-d discogs \
+	-c \
+	'
+	create or replace function xs04format_x(
+		artistid integer,
+		masterid integer
+	)
+	returns table(
+		artist_id integer,
+		artist_name text,
+		master_id integer,
+		master_title text,
+		master_year integer,
+		master_data_quality text,
+		release_id integer,
+		release_title text,
+		release_date text,
+		release_country text,
+		release_data_quality text,
+		release_format text,
+		release_descriptions text,
+		text_string text,
+		label_id integer,
+		label_name text,
+		catno text
+	)
+	as $$
+	begin
+	return query
+		select
+			n.artist_id,
+			n.artist_name,
+			n.master_id,
+			n.master_title,
+			n.master_year,
+			n.master_data_quality,
+			n.release_id,
+			n.release_title,
+			n.release_date,
+			n.release_country,
+			n.release_data_quality,
+			n.release_format,
+			n.release_descriptions,
+			n.text_string,
+			n.label_id,
+			n.label_name,
+			n.catno
+		from
+			xz04format_x(
+				artistid,
+				masterid
+			) n
+		order by
+			n.release_date,
+			n.release_id,
+			n.label_id,
+			n.catno
+		;
+	end;
+	$$ language plpgsql;
+	'

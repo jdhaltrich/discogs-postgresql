@@ -1,0 +1,113 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GNU General Public License v2.0 only
+# Copyright (c) 2026 Juan Diluca
+# See the LICENSE file in the repository root for details.
+
+psql \
+	-U postgres \
+	-d discogs \
+	-c \
+	'
+	create or replace function xz04no_master_format(
+		artistid integer,
+		releaseid integer
+	)
+	returns table(
+		artist_id integer,
+		artist_name text,
+		master_id integer,
+		release_id integer,
+		release_title text,
+		release_date text,
+		release_country text,
+		release_data_quality text,
+		release_format text,
+		release_descriptions text,
+		text_string text,
+		label_id integer,
+		label_name text,
+		catno text
+	)
+	as $$
+	begin
+	return query
+		select
+			xrf.artist_id,
+			xrf.artist_name,
+			xrf.master_id,
+			xrf.release_id,
+			xrf.release_title,
+			xrf.release_date,
+			xrf.release_country,
+			xrf.release_data_quality,
+			xrf.release_format,
+			xrf.release_descriptions,
+			xrf.text_string,
+			xrl.label_id,
+			xrl.label_name,
+			xrl.catno
+		from
+			(
+			select
+				xr.artist_id,
+				xr.artist_name,
+				xr.master_id,
+				xr.release_id,
+				xr.release_title,
+				xr.release_date,
+				xr.release_country,
+				xr.release_data_quality,
+				rf.release_format,
+				rf.release_descriptions,
+				rf.text_string
+			from
+				(
+				select
+					n.artist_id,
+					n.artist_name,
+					n.master_id,
+					n.release_id,
+					n.release_title,
+					n.release_date,
+					n.release_country,
+					n.release_data_quality
+				from
+					xz03no_master_release_x(
+						artistid
+					) n
+				where
+					n.release_id = releaseid
+				) xr
+
+			left join
+
+				(
+				select
+					n.release_id,
+					n.name as release_format,
+					n.descriptions as release_descriptions,
+					n.text_string
+				from
+					release_format n
+				) rf
+			on
+				xr.release_id = rf.release_id
+			) xrf
+
+		left join
+
+			(
+			select
+				n.release_id,
+				n.label_id,
+				n.label_name,
+				n.catno
+			from
+				release_label n
+			) xrl
+		on
+			xrf.release_id = xrl.release_id
+		;
+	end;
+	$$ language plpgsql;
+	'

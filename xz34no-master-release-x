@@ -1,0 +1,94 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GNU General Public License v2.0 only
+# Copyright (c) 2026 Juan Diluca
+# See the LICENSE file in the repository root for details.
+
+psql \
+	-U postgres \
+	-d discogs \
+	-c \
+	'
+	create or replace function xz34no_master_release_x(
+		artistid integer
+	)
+	returns table(
+		artist_id integer,
+		master_id integer,
+		artist_name text,
+		release_id integer,
+		extra integer,
+		anv text,
+		position_artist integer,
+		role text,
+		join_string text,
+		release_title text,
+		release_date text,
+		release_country text,
+		release_data_quality text
+	)
+	as $$
+	begin
+	return query
+		select
+			rkv.artist_id,
+			rnx.master_id,
+			rkv.artist_name,
+			rkv.release_id,
+			rkv.extra,
+			rkv.anv,
+			rkv.position_artist,
+			rkv.role,
+			rkv.join_string,
+			rnx.release_title,
+			rnx.release_date,
+			rnx.release_country,
+			rnx.release_data_quality
+		from
+			(
+			select
+				nx.artist_id,
+				nx.artist_name,
+				nx.release_id,
+				nx.extra,
+				nx.anv,
+				nx.position as position_artist,
+				nx.role,
+				nx.join_string
+			from
+				release_artist nx
+			where
+				nx.release_id in (
+					select
+						n.release_id
+					from
+						xz33no_master_release_x(
+							artistid
+							) n
+					where
+						n.releasecount > 1
+					)
+			) rkv
+
+		left join
+
+			(
+			select
+				n.id as release_id,
+				n.master_id,
+				n.title as release_title,
+				n.released as release_date,
+				n.country as release_country,
+				n.data_quality as release_data_quality
+			from
+				release n
+			) rnx
+		on
+			rkv.release_id = rnx.release_id
+		order by
+			rnx.release_date,
+			rkv.release_id,
+			rkv.position_artist
+		;
+	end;
+	$$ language plpgsql;
+	'

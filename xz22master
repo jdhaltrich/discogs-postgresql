@@ -1,0 +1,95 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GNU General Public License v2.0 only
+# Copyright (c) 2026 Juan Diluca
+# See the LICENSE file in the repository root for details.
+
+psql \
+	-U postgres \
+	-d discogs \
+	-c \
+	'
+	create or replace function xz22master(
+		artistid integer
+	)
+	returns table(
+		artist_id integer,
+		artist_name text,
+		master_id integer,
+		master_title text,
+		master_year integer,
+		master_data_quality text,
+		mastercount bigint,
+		mastercount_artist bigint
+	)
+	as $$
+	begin
+	return query
+		select
+			xmq.artist_id,
+			xmq.artist_name,
+			xmq.master_id,
+			xmq.master_title,
+			xmq.master_year,
+			xmq.master_data_quality,
+			xmq.mastercount,
+			xqq.mastercount_artist
+		from
+			(
+			select
+				xm.artist_id,
+				xm.artist_name,
+				xm.master_id,
+				xm.master_title,
+				xm.master_year,
+				xm.master_data_quality,
+				xq.mastercount
+			from
+				(
+				select
+					n.artist_id,
+					n.artist_name,
+					n.master_id,
+					n.master_title,
+					n.master_year,
+					n.master_data_quality
+				from
+					xz02master(
+						artistid
+					) n
+				) xm
+
+			left join
+
+				(
+				select
+					n.master_id,
+					count(n.master_id) as mastercount
+				from
+					master_artist n
+				group by
+					n.master_id
+				) xq
+			on
+				xm.master_id = xq.master_id
+			) xmq
+
+		left join
+
+			(
+			select
+				n.artist_id,
+				n.master_id,
+				count(n.master_id) as mastercount_artist
+			from
+				master_artist n
+			group by
+				n.artist_id,
+				n.master_id
+			) xqq
+		on
+			xmq.artist_id = xqq.artist_id
+			and xmq.master_id = xqq.master_id
+		;
+	end;
+	$$ language plpgsql;
+	'

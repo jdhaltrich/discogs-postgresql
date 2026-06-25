@@ -1,0 +1,80 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GNU General Public License v2.0 only
+# Copyright (c) 2026 Juan Diluca
+# See the LICENSE file in the repository root for details.
+
+psql \
+	-U postgres \
+	-d discogs \
+	-c \
+	'
+	create or replace function xz03release(
+		artistid integer,
+		masterid integer
+	)
+	returns table(
+		artist_id integer,
+		artist_name text,
+		master_id integer,
+		master_title text,
+		master_year integer,
+		master_data_quality text,
+		release_id integer,
+		release_title text,
+		release_date text,
+		release_country text,
+		release_data_quality text
+	)
+	as $$
+	begin
+	return query
+		select
+			am.artist_id,
+			am.artist_name,
+			am.master_id,
+			am.master_title,
+			am.master_year,
+			am.master_data_quality,
+			vr.release_id,
+			vr.release_title,
+			vr.release_date,
+			vr.release_country,
+			vr.release_data_quality
+		from
+			(		
+			select 
+				n.artist_id,
+				n.artist_name,
+				n.master_id,
+				n.master_title,
+				n.master_year,
+				n.master_data_quality
+			from
+				xz02master(
+					artistid
+				) n
+			where
+				n.master_id = masterid
+			) am
+
+		left join
+		
+			(
+			select
+				n.master_id,
+				n.release_id,
+				n.release_title,
+				n.release_date,
+				n.release_country,
+				n.release_data_quality
+			from
+				xz11release(
+					masterid
+				) n
+			) vr
+		on
+			am.master_id = vr.master_id
+		;
+	end;
+	$$ language plpgsql;
+	'
