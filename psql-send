@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+source "/zedfs/aske93/audio/db/discogs/discogs.config"
+export PGPASSWORD="${postgresqlpasswd}"
+argsarray=("$@")
+sqlfile="${argsarray[0]}"
+
+psql \
+	-U postgres \
+	-d discogs \
+	-f "${sqlfile}"

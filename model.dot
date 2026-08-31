@@ -1,0 +1,617 @@
+digraph discogs_db {
+	graph [
+		label="discogs db model architecture",
+		fontname="source code pro",
+		fontsize=60,
+		labelloc=t,
+		rankdir=LR,
+//		bgcolor="#9e9cff:#27ddf5",     /* lila a celeste */
+		bgcolor="#9187ff:#f527d6",
+//		bgcolor="#000000:#f527d6",     /* negro a fucsia */
+		gradientangle=57,
+		splines=true,
+		overlap=false
+	];
+
+	node [
+		fontname="source code pro",
+		fontsize=12,
+		fontcolor="#000000"
+	];
+
+	edge [
+		fontname="source code pro",
+		fontsize=6,
+		color="#005eff",
+		penwidth=2
+	];
+
+	/* ── base tables (grey) ─────────────────────────────────────── */
+	subgraph tables {
+		node [
+			shape=none
+		];
+
+		artist [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>artist</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">id</TD></TR>
+					<TR><TD ALIGN="LEFT">name</TD></TR>
+					<TR><TD ALIGN="LEFT">realname</TD></TR>
+					<TR><TD ALIGN="LEFT">profile</TD></TR>
+					<TR><TD ALIGN="LEFT">data_quality</TD></TR>
+				</TABLE>
+			>
+		];
+
+		artist_alias [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>artist_alias</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">alias_name</TD></TR>
+					<TR><TD ALIGN="LEFT">alias_artist_id</TD></TR>
+				</TABLE>
+			>
+		];
+
+		master_artist [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>master_artist</B></TD></TR>
+					<TR><TD ALIGN="LEFT">id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD ALIGN="LEFT">anv</TD></TR>
+					<TR><TD ALIGN="LEFT">position</TD></TR>
+					<TR><TD ALIGN="LEFT">join_string</TD></TR>
+					<TR><TD ALIGN="LEFT">role</TD></TR>
+				</TABLE>
+			>
+		];
+
+		master [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>master</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">id</TD></TR>
+					<TR><TD ALIGN="LEFT">title</TD></TR>
+					<TR><TD ALIGN="LEFT">year</TD></TR>
+					<TR><TD ALIGN="LEFT">main_release</TD></TR>
+					<TR><TD ALIGN="LEFT">data_quality</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">id</TD></TR>
+					<TR><TD ALIGN="LEFT">title</TD></TR>
+					<TR><TD ALIGN="LEFT">released</TD></TR>
+					<TR><TD ALIGN="LEFT">country</TD></TR>
+					<TR><TD ALIGN="LEFT">notes</TD></TR>
+					<TR><TD ALIGN="LEFT">data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">main</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">status</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release_artist [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release_artist</B></TD></TR>
+					<TR><TD ALIGN="LEFT">id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD ALIGN="LEFT">extra</TD></TR>
+					<TR><TD ALIGN="LEFT">anv</TD></TR>
+					<TR><TD ALIGN="LEFT">position</TD></TR>
+					<TR><TD ALIGN="LEFT">join_string</TD></TR>
+					<TR><TD ALIGN="LEFT">role</TD></TR>
+					<TR><TD ALIGN="LEFT">tracks</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release_label [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release_label</B></TD></TR>
+					<TR><TD ALIGN="LEFT">id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">label_id</TD></TR>
+					<TR><TD ALIGN="LEFT">label_name</TD></TR>
+					<TR><TD ALIGN="LEFT">catno</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release_format [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release_format</B></TD></TR>
+					<TR><TD ALIGN="LEFT">id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">name</TD></TR>
+					<TR><TD ALIGN="LEFT">qty</TD></TR>
+					<TR><TD ALIGN="LEFT">text_string</TD></TR>
+					<TR><TD ALIGN="LEFT">descriptions</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release_track [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release_track</B></TD></TR>
+					<TR><TD ALIGN="LEFT">id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">sequence</TD></TR>
+					<TR><TD ALIGN="LEFT">position</TD></TR>
+					<TR><TD ALIGN="LEFT">parent</TD></TR>
+					<TR><TD ALIGN="LEFT">title</TD></TR>
+					<TR><TD ALIGN="LEFT">duration</TD></TR>
+					<TR><TD ALIGN="LEFT">track_id</TD></TR>
+				</TABLE>
+			>
+		];
+
+		release_no_master [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#d1d1d1">
+					<TR><TD ALIGN="LEFT"><B>release_no_master</B></TD></TR>
+					<TR><TD ALIGN="LEFT">unique_id</TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">release_id</TD></TR>
+				</TABLE>
+			>
+		];
+
+	}
+
+	/* ── non-clustered functions ─────────────────────────────────────── */
+	subgraph functions {
+		node [
+			shape=none
+		];
+
+		xz11artist [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xz11artist</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_realname</TD></TR>
+					<TR><TD ALIGN="LEFT">data_quality</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xzn13release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xzn13release (union xz13/xn13)</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xzn24format [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xzn24format</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">label_id</TD></TR>
+					<TR><TD ALIGN="LEFT">label_name</TD></TR>
+					<TR><TD ALIGN="LEFT">catno</TD></TR>
+					<TR><TD ALIGN="LEFT">release_format</TD></TR>
+					<TR><TD ALIGN="LEFT">release_descriptions</TD></TR>
+					<TR><TD ALIGN="LEFT">text_string</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xzn24tracklist [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xzn24tracklist</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">tracknumber</TD></TR>
+					<TR><TD ALIGN="LEFT">sequence</TD></TR>
+					<TR><TD ALIGN="LEFT">title</TD></TR>
+					<TR><TD ALIGN="LEFT">duration</TD></TR>
+					<TR><TD ALIGN="LEFT">parent</TD></TR>
+				</TABLE>
+			>
+		];
+
+	}
+
+	/* ── master-branch functions ─────────────────────────────────────── */
+	subgraph cluster_master_functions {
+		label="master-release branch";
+		fontname="source code pro";
+		fontsize=36;
+		style=filled;
+		fillcolor="#27ddf5";
+		color="#000000";
+		penwidth=3;
+
+		node [
+			shape=none
+		];
+
+		kz11master [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kz11master</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xz11master [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xz11master</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xz12master [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xz12master</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+				</TABLE>
+			>
+		];
+
+		kz1arelease [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kz1arelease</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+				</TABLE>
+			>
+		];
+
+		kz1brelease [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kz1brelease</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+				</TABLE>
+			>
+		];
+
+		kz12release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kz12release</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xz13release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xz13release</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+				</TABLE>
+			>
+		];
+
+		join_xz11master [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		kz11master:n -> join_xz11master [arrowhead=none];
+		join_xz11master -> xz11master:n;
+
+		join_xz12master [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		xz11master:x -> join_xz12master [arrowhead=none];
+		master:n -> join_xz12master [arrowhead=none];
+		join_xz12master -> xz12master:x;
+
+		join_kz12release [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		kz1arelease:x -> join_kz12release [arrowhead=none];
+		kz1brelease:x -> join_kz12release [arrowhead=none];
+		join_kz12release -> kz12release:y;
+
+		join_xz13release [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		xz12master:x -> join_xz13release [arrowhead=none];
+		kz12release:x -> join_xz13release [arrowhead=none];
+		join_xz13release -> xz13release:x;
+
+	}
+
+	/* ── no-master-branch functions ─────────────────────────────────────── */
+	subgraph cluster_no_master_functions {
+		label="unique-release branch";
+		fontname="source code pro";
+		fontsize=36;
+		style=filled;
+		fillcolor="#ff87bd";
+		color="#000000";
+		penwidth=3;
+
+		node [
+			shape=none
+		];
+
+		kn1arelease [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kn1arelease</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">master_id</TD></TR>
+				</TABLE>
+			>
+		];
+
+		kn1brelease [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kn1brelease</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+				</TABLE>
+			>
+		];
+
+		kn12release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#ffff75">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#ffff75"><B>kn12release</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+				</TABLE>
+			>
+		];
+
+		xn13release [
+			label=<
+				<TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" BGCOLOR="#27f5b7">
+					<TR><TD ALIGN="LEFT" BGCOLOR="#27f5b7"><B>xn13release</B></TD></TR>
+					<TR><TD PORT="n" ALIGN="LEFT">artist_id</TD></TR>
+					<TR><TD ALIGN="LEFT">artist_name</TD></TR>
+					<TR><TD PORT="x" ALIGN="LEFT">master_id</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">mastercount</TD></TR>
+					<TR><TD ALIGN="LEFT">master_collaboration</TD></TR>
+					<TR><TD ALIGN="LEFT">master_year</TD></TR>
+					<TR><TD ALIGN="LEFT">master_title</TD></TR>
+					<TR><TD ALIGN="LEFT">master_data_quality</TD></TR>
+					<TR><TD PORT="y" ALIGN="LEFT">release_id</TD></TR>
+					<TR><TD ALIGN="LEFT">release_date</TD></TR>
+					<TR><TD ALIGN="LEFT">release_title</TD></TR>
+					<TR><TD ALIGN="LEFT">release_country</TD></TR>
+					<TR><TD ALIGN="LEFT">release_data_quality</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount_artist</TD></TR>
+					<TR><TD ALIGN="LEFT">releasecount</TD></TR>
+					<TR><TD ALIGN="LEFT">release_collaboration</TD></TR>
+				</TABLE>
+			>
+		];
+
+		join_kn1arelease [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		join_kn1arelease -> kn1arelease:n;
+
+		join_kn12release [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		kn1arelease:n -> join_kn12release [arrowhead=none];
+		kn1brelease:x -> join_kn12release [arrowhead=none];
+		join_kn12release -> kn12release:y;
+
+		join_xn13release [
+			shape=point,
+			width=0.15,
+			color="#005eff"
+		];
+
+		kn12release:n -> join_xn13release [arrowhead=none];
+		join_xn13release -> xn13release:n;
+
+	}
+
+
+	/* ── non-clustered relations ─────────────────────────────────────── */
+	artist:n -> xz11artist:n;
+	master_artist:x -> kz11master:x;
+	xz11artist:n -> join_xz11master [arrowhead=none];
+
+	release:n -> kz1arelease:x;
+	release_artist:y -> kz1brelease:x;
+
+	release:n -> join_kn1arelease [arrowhead=none];
+	release_no_master:x -> join_kn1arelease [arrowhead=none];
+
+	release_artist:y -> kn1brelease:x;
+	xz11artist:n -> join_xn13release [arrowhead=none];
+
+	join_xzn13release [
+		shape=point,
+		width=0.15,
+		color="#005eff"
+	];
+
+	xz13release:x -> join_xzn13release [arrowhead=none];
+	xn13release:x -> join_xzn13release [arrowhead=none];
+	join_xzn13release -> xzn13release:x;
+
+	join_label_format [
+		shape=point,
+		width=0.15,
+		color="#005eff"
+	];
+
+	release_label:y -> join_label_format [arrowhead=none];
+	release_format:y -> join_label_format [arrowhead=none];
+
+	join_xzn24format [
+		shape=point,
+		width=0.15,
+		color="#005eff"
+	];
+
+	xzn13release:y -> join_xzn24format [arrowhead=none];
+	join_label_format -> join_xzn24format;
+	join_xzn24format -> xzn24format:y;
+
+	join_xzn24tracklist [
+		shape=point,
+		width=0.15,
+		color="#005eff"
+	];
+
+	xzn13release:y -> join_xzn24tracklist [arrowhead=none];
+	release_track:y -> join_xzn24tracklist [arrowhead=none];
+	join_xzn24tracklist -> xzn24tracklist:y;
+
+}

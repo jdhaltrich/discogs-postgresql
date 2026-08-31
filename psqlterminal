@@ -1,0 +1,64 @@
+#!/usr/bin/bash
+
+source "/zedfs/aske93/audio/db/discogs/discogs.config"
+export PGPASSWORD="${postgresqlpasswd}"
+argsarray=("$@")
+arguments="${argsarray[0]}"
+functionpath="${argsarray[1]}"
+
+case ${arguments} in
+	-n0)
+		v01="${argsarray[2]}"
+		key01="${argsarray[3]}"
+
+		psql \
+			-U postgres \
+			-d discogs \
+			-F '|' \
+			-P linestyle=unicode \
+			-f "${functionpath}" \
+			-v "${v01}""${key01}"
+		;;
+	-n1)
+		v01="${argsarray[2]}"
+		key01="${argsarray[3]}"
+
+		psql \
+			-U postgres \
+			-d discogs \
+			-F '|' \
+			-P linestyle=unicode \
+			-f "${functionpath}" \
+			-v "${v01}""${key01}"
+		;;
+	-n2)
+		v01="${argsarray[2]}"
+		key01=${argsarray[3]}
+		v02="${argsarray[4]}"
+		key02=${argsarray[5]}
+
+		psql \
+			-U postgres \
+			-d discogs \
+			-F '|' \
+			-P linestyle=unicode \
+			-f "${functionpath}" \
+			-v "${v01}"${key01} \
+			-v "${v02}"${key02}
+		;;
+	-n3)
+		v01="${argsarray[2]}"
+		key01=${argsarray[3]}
+		v02="${argsarray[4]}"
+		key02="${argsarray[5]}"
+
+		psql \
+			-U postgres \
+			-d discogs \
+			-F '|' \
+			-P linestyle=unicode \
+			-f "${functionpath}" \
+			-v "${v01}"${key01} \
+			-v "${v02}${key02}"
+		;;
+esac

@@ -1,0 +1,96 @@
+#!/usr/bin/bash
+
+source "/zedfs/aske93/audio/db/discogs/scripts/extract/paths.config"
+argsarray=("$@")
+index=${argsarray[0]}
+rootpath="${queryrootdir}"
+psqlpath="${psqlsendpath}"
+
+psqlquerypaths=(
+"${rootpath}/artist-lookup.sql,-n0,regex="
+"${rootpath}/artist-alias.sql,-n1,artistid="
+"${rootpath}/xz12master-c.sql,-n1,artistid="
+"${rootpath}/xz12master-s.sql,-n1,artistid="
+"${rootpath}/xzn13release-c.sql,-n1,artistid="
+"${rootpath}/xzn13release-m.sql,-n2,artistid=,masterid="
+"${rootpath}/xzn13release-s.sql,-n1,artistid="
+"${rootpath}/xzn24format-m.sql,-n2,artistid=,masterid="
+"${rootpath}/xzn24tracklist-m.sql,-n2,artistid=,masterid="
+"${rootpath}/xzn24format-multiple-masters.sql,-n3,artistid=,masterid="
+"${rootpath}/xzn24tracklist-multiple-masters.sql,-n3,artistid=,masterid="
+"${rootpath}/xzn24tracklist-multiple-releases.sql,-n3,artistid=,releaseid="
+"${rootpath}/kz11master.sql,-n1,artistid="
+"${rootpath}/kz1arelease.sql,-n1,artistid="
+"${rootpath}/kz1brelease.sql,-n1,artistid="
+"${rootpath}/kz12release.sql,-n1,artistid="
+"${rootpath}/xz11artist.sql,-n1,artistid="
+"${rootpath}/xz11master.sql,-n1,artistid="
+"${rootpath}/xz12master.sql,-n1,artistid="
+"${rootpath}/xz13release.sql,-n1,artistid="
+"${rootpath}/kn1arelease.sql,-n1,artistid="
+"${rootpath}/kn1brelease.sql,-n1,artistid="
+"${rootpath}/kn12release.sql,-n1,artistid="
+"${rootpath}/xn13release.sql,-n1,artistid="
+"${rootpath}/zz13release.sql,-n1,artistid="
+"${rootpath}/zn13release.sql,-n1,artistid="
+"${rootpath}/xzn13release.sql,-n1,artistid="
+"${rootpath}/xzn24format.sql,-n1,artistid="
+"${rootpath}/xzn24tracklist.sql,-n1,artistid="
+"${rootpath}/zzn13release.sql,-n1,artistid="
+"${rootpath}/zzn24format.sql,-n1,artistid="
+"${rootpath}/zzn24tracklist.sql,-n1,artistid="
+)
+
+psqlquerypath="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 1)"
+arguments="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 2)"
+
+case "${arguments}" in
+	-n0)
+		v01="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 3)"
+		key01="%${argsarray[1]}%"
+
+		${psqlpath} \
+			"${arguments}" \
+			"${psqlquerypath}" \
+			"${v01}" \
+			"${key01}"
+		;;
+	-n1)
+		v01="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 3)"
+		key01=${argsarray[1]}
+
+		${psqlpath} \
+			"${arguments}" \
+			"${psqlquerypath}" \
+			"${v01}" \
+			${key01}
+		;;
+	-n2)
+		v01="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 3)"
+		key01=${argsarray[1]}
+		v02="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 4)"
+		key02=${argsarray[2]}
+
+		${psqlpath} \
+			"${arguments}" \
+			"${psqlquerypath}" \
+			"${v01}" \
+			${key01} \
+			"${v02}" \
+			${key02}
+		;;
+	-n3)
+		v01="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 3)"
+		key01=${argsarray[1]}
+		v02="$(printf '%s\n' "${psqlquerypaths[${index}]}" | cut -d "," -f 4)"
+		key02="${argsarray[2]}"
+
+		${psqlpath} \
+			"${arguments}" \
+			"${psqlquerypath}" \
+			"${v01}" \
+			${key01} \
+			"${v02}" \
+			"${key02}"
+		;;
+esac

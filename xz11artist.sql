@@ -1,0 +1,28 @@
+-- SPDX-License-Identifier: GNU General Public License v2.0 only
+-- Copyright (c) 2026 Juan Diluca
+-- See the LICENSE file in the repository root for details.
+
+create or replace function xz11artist(
+	artistid integer
+)
+returns table(
+	artist_id integer,
+	artist_name text,
+	artist_realname text,
+	data_quality text
+)
+as $$
+begin
+return query
+	select
+		n.id as artist_id,
+		n.name as artist_name,
+		n.realname as artist_realname,
+		n.data_quality
+	from
+		artist n
+	where
+		n.id = artistid
+	;
+end;
+$$ language plpgsql;
